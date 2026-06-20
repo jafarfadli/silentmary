@@ -25,7 +25,7 @@ public class FrameManager : MonoBehaviour
 
     public bool checkObstructionOut(Transform playerTransform)
     {
-        bool obstructed = obstructionCheck.obstructed(new Vector3(-playerTransform.position.x, 10, 0), Vector2.up);
+        bool obstructed = obstructionCheck.obstructed(new Vector3(playerTransform.position.x, playerTransform.position.y, 0), Vector2.up);
         obstructedText.color = obstructedTextColor;
         obstructedText.gameObject.SetActive(obstructed);
 

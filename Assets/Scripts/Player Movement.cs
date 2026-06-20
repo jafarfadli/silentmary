@@ -42,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
                 body.linearVelocity = new Vector2(body.linearVelocity.x, jumpPower);
             }
         }
+
         if (Input.GetKeyDown(KeyCode.Space) && grounded())
         {
             if (!otherFrame.checkObstructionIn(transform))
@@ -68,8 +69,6 @@ public class PlayerMovement : MonoBehaviour
                 switchingOut = false;
             }
         }
-
-        Debug.Log(grounded());
 
         animator.SetBool("walk", Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D));
         animator.SetBool("grounded", grounded());

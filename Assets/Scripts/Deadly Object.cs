@@ -8,7 +8,7 @@ public class DeadlyObject : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.SetActive(false);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            GameProgress.instance.RestartFromCheckpoint();
         }
     }
 }
