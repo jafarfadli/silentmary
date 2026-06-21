@@ -6,8 +6,10 @@ public class GameProgress : MonoBehaviour
     public static GameProgress instance;
     public UIManager uiManager;
     public GameObject pauseUI;
+    public GameObject winUI;
     public int currentLevel = 1;
     public bool isPaused = false;
+    public bool isTelekinesis = false;
     public GameObject playerLeft;
     public GameObject playerRight;
     public class CheckpointState
@@ -80,8 +82,13 @@ public class GameProgress : MonoBehaviour
         }
 
         Vector3 newCamPos = new Vector3(checkpointCameraX, checkpointCameraY, Camera.main.transform.position.z);
+
+        if (!checkpointFrameLeft)
+        {
+            newCamPos = new Vector3(-checkpointCameraX, -60, newCamPos.z);
+        }
         Camera.main.transform.position = newCamPos;
-        CameraMovement.instance.MoveCamera(newCamPos);
+        CameraMovement.instance.MoveCamera(newCamPos, true);
     }
     public void ResumeGame()
     {
@@ -107,5 +114,12 @@ public class GameProgress : MonoBehaviour
         PlayerPrefs.SetInt("CheckpointIsCheckpoint", 0);
 
         uiManager.goToScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void Win()
+    {
+        winUI.SetActive(true);
+        Time.timeScale = 0;
+        isPaused = true;        
     }
 }

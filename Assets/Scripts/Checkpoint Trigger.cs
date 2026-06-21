@@ -10,6 +10,7 @@ public class CheckpointTrigger : MonoBehaviour
         if (other.tag == "Player")
         {
         GameProgress.instance.SetCheckpoint(newCheckpointTransform.position, newCameraTransform.position, leftFrame);
+        CameraMovement.instance.MoveCamera(newCameraTransform.position, leftFrame);
         }
     }
 }

@@ -12,11 +12,15 @@ public class PlayerMovement : MonoBehaviour
     Animator animator;
     public bool switchingOut = false;
     public bool switchingIn = false;
+    Transform currentParent;
+    Vector3 originalScale;
     void Awake()
     {
         body = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        currentParent = currentFrame.transform;
+        originalScale = transform.localScale;
     }
 
     void Update()
@@ -30,12 +34,12 @@ public class PlayerMovement : MonoBehaviour
             if (Input.GetKey(KeyCode.A))
             {
                 transform.position += Vector3.left * moveSpeed * Time.deltaTime;
-                transform.localScale = new Vector3(-1, 1, 1);
+                transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x) * Mathf.Sign(transform.parent.localScale.x), transform.localScale.y, transform.localScale.z);
             }
             if (Input.GetKey(KeyCode.D))
             {
                 transform.position += Vector3.right * moveSpeed * Time.deltaTime;
-                transform.localScale = new Vector3(1, 1, 1);
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * Mathf.Sign(transform.parent.localScale.x), transform.localScale.y, transform.localScale.z);
             }
             if (Input.GetKeyDown(KeyCode.W) && grounded())
             {
@@ -45,7 +49,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && grounded())
         {
-            if (!otherFrame.checkObstructionIn(transform))
+            Debug.Log("masuk"+!otherFrame.checkObstructionIn(transform));
+            Debug.Log("keluar"+!otherFrame.checkObstructionOut(transform));
+            if (!otherFrame.checkObstructionIn(transform) 
+            && !currentFrame.checkObstructionOut(transform) 
+            && !currentFrame.checkObstructionCam())
             {   
                 switchingOut = true;
             }
@@ -62,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 body.linearVelocity = new Vector2(body.linearVelocity.x, 50);
             }
-            if (transform.position.y >= Camera.main.transform.position.y + 10)
+            if (transform.position.y > Camera.main.transform.position.y + 10)
             {
                 currentFrame.switchOutFrame();
                 otherFrame.switchInFrame(transform, Camera.main.transform);
@@ -76,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool grounded()
     {
-        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.2f, LayerMask.GetMask("Ground"));
+        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.2f, LayerMask.GetMask("Ground", "Moving Ground"));
         return downHit.collider != null;
     }
 }

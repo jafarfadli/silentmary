@@ -14,22 +14,34 @@ public class FrameManager : MonoBehaviour
         obstructedText.gameObject.SetActive(false);
     }
 
-    public bool checkObstructionIn(Transform playerTransform)
+    public bool checkObstructionIn(Transform playerTransform) // gakena = obstructed
     {
-        bool obstructed = obstructionCheck.obstructed(new Vector3(-playerTransform.position.x, 10, 0), Vector2.down);
+        bool obstructed = obstructionCheck.obstructed(new Vector3(-playerTransform.position.x,transform.position.y + 10, 0), Vector2.down);
         obstructedText.color = obstructedTextColor;
+        obstructedText.text = "Obstructed";
         obstructedText.gameObject.SetActive(obstructed);
 
         return obstructed;
     }
 
-    public bool checkObstructionOut(Transform playerTransform)
+    public bool checkObstructionOut(Transform playerTransform) // kena = obstructed
     {
-        bool obstructed = obstructionCheck.obstructed(new Vector3(playerTransform.position.x, playerTransform.position.y, 0), Vector2.up);
+        bool NOTobstructed = obstructionCheck.obstructed(new Vector3(playerTransform.position.x, playerTransform.position.y, 0), Vector2.up);
         obstructedText.color = obstructedTextColor;
-        obstructedText.gameObject.SetActive(obstructed);
+        obstructedText.text = "Obstructed";
+        obstructedText.gameObject.SetActive(!NOTobstructed);
 
-        return obstructed;
+        return !NOTobstructed;
+    }
+
+    public bool checkObstructionCam()
+    {
+        bool inCooldown = CameraMovement.instance.isMoving;
+        obstructedText.color = obstructedTextColor;
+        obstructedText.text = "In Cooldown";
+        obstructedText.gameObject.SetActive(inCooldown);
+
+        return inCooldown;
     }
 
     public void switchOutFrame()

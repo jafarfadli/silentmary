@@ -29,4 +29,9 @@ public class UIManager : MonoBehaviour
         clearUI();
         newUI.SetActive(true);
     }
+
+    public void quitGame()
+    {
+        Application.Quit();
+    }
 }
