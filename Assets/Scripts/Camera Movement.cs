@@ -1,29 +1,40 @@
 using UnityEngine;
+using TMPro;
 
 public class CameraMovement : MonoBehaviour
 {
     public static CameraMovement instance;
     public Transform blockerTransform;
+    public TextMeshPro contextText;
     public float speed = 5f;
     public Vector3 camPositionLeft;
     public Vector3 camPositionRight;
     public bool isMoving = false;
-
+    public bool viewMode = false;
     void Awake()
     {
         instance = this;
-
         camPositionLeft = new Vector3(camPositionLeft.x, camPositionLeft.y, transform.position.z);
-        camPositionRight = new Vector3(camPositionRight.x, -60, transform.position.z);
+        camPositionRight = new Vector3(camPositionRight.x, -60, transform.position.z);   
     }
 
     void Update()
     {
+        if(transform.position.y == 0)
+        {
+            blockerTransform.position = new Vector3(transform.position.x-15.5f, 0, 0);
+            contextText.text = "LEFT";
+        }
+        else
+        {
+            blockerTransform.position = new Vector3(transform.position.x+15.5f, 0, 0);
+            contextText.text = "RIGHT";
+        }
+
         if (isMoving){
             if (transform.position.y == 0)
             {
                 transform.position += (camPositionLeft - transform.position) * speed * Time.deltaTime;
-                blockerTransform.position = new Vector3(transform.position.x-15.5f, 0, 0);
                 if (Vector3.Distance(transform.position, camPositionLeft) < 10e-3)
                 {
                     isMoving = false;
@@ -31,8 +42,7 @@ public class CameraMovement : MonoBehaviour
             }
             else
             {
-                transform.position += (camPositionRight - transform.position) * speed * Time.deltaTime;
-                blockerTransform.position = new Vector3(transform.position.x+15.5f, 0, 0);  
+                transform.position += (camPositionRight - transform.position) * speed * Time.deltaTime;  
                 if (Vector3.Distance(transform.position, camPositionRight) < 10e-3)
                 {
                     isMoving = false;
@@ -53,6 +63,30 @@ public class CameraMovement : MonoBehaviour
             camPositionLeft = new Vector3(-newPosition.x, camPositionLeft.y, transform.position.z);
             camPositionRight = new Vector3(newPosition.x, camPositionRight.y, transform.position.z);
             isMoving = true;
+        }
+    }
+
+    public void SwitchFrameView(bool frameLeft)
+    {
+        if (frameLeft){
+            transform.position = camPositionRight;
+        }
+        else
+        {
+            transform.position = camPositionLeft;
+        }        
+    }
+
+    public void SetCamPos(Vector3 newPosition, bool frameLeft)
+    {
+       if (frameLeft){
+            camPositionLeft = new Vector3(newPosition.x, camPositionLeft.y, transform.position.z);
+            camPositionRight = new Vector3(-newPosition.x, camPositionRight.y, transform.position.z);
+        }
+        else
+        {
+            camPositionLeft = new Vector3(-newPosition.x, camPositionLeft.y, transform.position.z);
+            camPositionRight = new Vector3(newPosition.x, camPositionRight.y, transform.position.z);
         }
     }
 }

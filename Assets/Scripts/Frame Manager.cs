@@ -47,13 +47,22 @@ public class FrameManager : MonoBehaviour
     public void switchOutFrame()
     {
         player.SetActive(false);
+        player.transform.SetParent(transform, true);
     }
 
-    public void switchInFrame(Transform playerTransform, Transform cameraTransform)
+    public void switchInFrame(Transform playerTransform, Transform cameraTransform, GameObject carry = null)
     {
         player.transform.position = new Vector3(-playerTransform.position.x, transform.position.y + 10, 0);
         player.transform.localScale = new Vector3(-playerTransform.localScale.x, playerTransform.localScale.y, playerTransform.localScale.z);
         player.GetComponent<PlayerMovement>().switchingIn = true;
+
+        if (carry != null)
+        {
+            player.GetComponent<PlayerMovement>().switchingCarry = true;
+            player.GetComponent<PlayerMovement>().carry = carry;
+            carry.transform.position = player.transform.position - new Vector3(0,1,0);
+            carry.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        }
         player.SetActive(true);
 
         cameraTransform.position = new Vector3(-cameraTransform.position.x, transform.position.y, cameraTransform.position.z);

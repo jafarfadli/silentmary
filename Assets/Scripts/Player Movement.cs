@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -12,8 +13,12 @@ public class PlayerMovement : MonoBehaviour
     Animator animator;
     public bool switchingOut = false;
     public bool switchingIn = false;
+    public bool switchingCarry = false;
+    public GameObject carry;
     Transform currentParent;
     Vector3 originalScale;
+    bool groundedBool = false;
+    float ungroundedTimer = Mathf.Infinity;
     void Awake()
     {
         body = GetComponent<Rigidbody2D>();
@@ -25,10 +30,21 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (gameObject.activeSelf == false)
+        ungroundedTimer += Time.deltaTime;
+        if ( gameObject.activeSelf == false || GameProgress.instance.viewMode)
         {
             return;
         }
+        if (grounded())
+        {
+            groundedBool = true;
+            ungroundedTimer = 0;
+        }
+        else if (ungroundedTimer > 0.15f)
+        {
+            groundedBool = false;   
+        }
+
         if (!switchingOut && !switchingIn)
         {
             if (Input.GetKey(KeyCode.A))
@@ -49,32 +65,61 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && grounded())
         {
-            Debug.Log("masuk"+!otherFrame.checkObstructionIn(transform));
-            Debug.Log("keluar"+!otherFrame.checkObstructionOut(transform));
             if (!otherFrame.checkObstructionIn(transform) 
             && !currentFrame.checkObstructionOut(transform) 
             && !currentFrame.checkObstructionCam())
             {   
                 switchingOut = true;
+                GameProgress.instance.canEnterViewMode = false;
+                if (LayerMask.LayerToName(transform.parent.gameObject.layer) == "Free Object")
+                {
+                    switchingCarry = true;
+                    carry = transform.parent.gameObject;
+                }
             }
         }
         if (switchingIn)
         {
-            if (grounded())
+            if (switchingCarry){
+                if (carry.GetComponent<FreeObject>().grounded())
+                {
+                    switchingIn = false;
+                    switchingCarry = false;
+                    carry = null;
+                    GameProgress.instance.canEnterViewMode = true;
+                }
+            }
+            else
             {
-                switchingIn = false;
+                if (grounded())
+                {
+                    switchingIn = false;
+                    GameProgress.instance.canEnterViewMode = true;
+                }
             }
         }
         if (switchingOut){
-            if (grounded())
-            {
-                body.linearVelocity = new Vector2(body.linearVelocity.x, 50);
+            if (switchingCarry){
+                if (carry.GetComponent<FreeObject>().grounded())
+                {
+                    carry.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(body.linearVelocity.x, 50);
+                }
             }
+            else
+            {
+                if (grounded())
+                {
+                    body.linearVelocity = new Vector2(body.linearVelocity.x, 50);
+                }
+            }
+
             if (transform.position.y > Camera.main.transform.position.y + 10)
             {
                 currentFrame.switchOutFrame();
-                otherFrame.switchInFrame(transform, Camera.main.transform);
+                otherFrame.switchInFrame(transform, Camera.main.transform, carry);
                 switchingOut = false;
+                switchingCarry = false;
+                carry = null;
             }
         }
 
@@ -84,7 +129,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool grounded()
     {
-        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.2f, LayerMask.GetMask("Ground", "Moving Ground"));
+        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.2f, LayerMask.GetMask("Ground", "Free Object"));
         return downHit.collider != null;
     }
 }

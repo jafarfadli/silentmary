@@ -8,28 +8,28 @@ public class GameProgress : MonoBehaviour
     public GameObject pauseUI;
     public GameObject winUI;
     public int currentLevel = 1;
-    public bool isPaused = false;
-    public bool isTelekinesis = false;
+    bool isPaused = false;
+    public bool viewMode = false;
+    public bool canEnterViewMode = true;
     public GameObject playerLeft;
     public GameObject playerRight;
-    public class CheckpointState
-    {
-        public bool frameLeft;
-        public bool isCheckpoint;
-        public Vector3 playerPosition;
-        public Vector3 cameraPosition;
-    }
+
     void Awake()
     {
         instance = this;
         uiManager.clearUI();
         Time.timeScale = 1;
 
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Free Object"), LayerMask.NameToLayer("Blocker"), true);
+    }
+
+    void Start()
+    {
         bool isCheckpoint = PlayerPrefs.GetInt("CheckpointIsCheckpoint", 0) == 1;
         if (isCheckpoint)
         {
             GoToCheckpoint();
-        }
+        }        
     }
 
     void Update()
@@ -47,9 +47,33 @@ public class GameProgress : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            GoToCheckpoint();
+            RestartFromCheckpoint();
+        }
+        if (Input.GetKeyDown(KeyCode.V) && canEnterViewMode)
+        {
+            if (!viewMode)
+            {
+                EnterViewMode();
+            }
+            else
+            {
+                ExitViewMode();
+            }
         }
     }
+
+    void EnterViewMode()
+    {
+        CameraMovement.instance.SwitchFrameView(playerLeft.activeSelf);
+        viewMode = true;
+    }
+
+    void ExitViewMode()
+    {
+        CameraMovement.instance.SwitchFrameView(!playerLeft.activeSelf);
+        viewMode = false;
+    }
+
     public void SetCheckpoint(Vector3 playerPosition, Vector3 cameraPosition, bool frameLeft)
     {
         PlayerPrefs.SetFloat("CheckpointPlayerX", playerPosition.x);
@@ -83,12 +107,15 @@ public class GameProgress : MonoBehaviour
 
         Vector3 newCamPos = new Vector3(checkpointCameraX, checkpointCameraY, Camera.main.transform.position.z);
 
-        if (!checkpointFrameLeft)
-        {
-            newCamPos = new Vector3(-checkpointCameraX, -60, newCamPos.z);
+        if (checkpointFrameLeft){
+            CameraMovement.instance.SetCamPos(newCamPos, true);
         }
+        else
+        {
+            CameraMovement.instance.SetCamPos(newCamPos, false);
+        }
+
         Camera.main.transform.position = newCamPos;
-        CameraMovement.instance.MoveCamera(newCamPos, true);
     }
     public void ResumeGame()
     {

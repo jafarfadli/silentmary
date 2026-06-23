@@ -24,7 +24,31 @@ public class Parenting : MonoBehaviour
             {
                 adjustAngle();
                 transform.SetParent(groundTransform, true);
-                transform.localScale = new Vector3(1/groundTransform.localScale.x * Mathf.Sign(groundTransform.localScale.x)  * Mathf.Sign(transform.localScale.x),1/groundTransform.localScale.y,1/groundTransform.localScale.z);
+                Parenting groundParenting = groundTransform.gameObject.GetComponent<Parenting>();
+                float angle = transform.rotation.eulerAngles.z;
+
+                if (groundParenting == null){
+                    if (Mathf.Min(angle % 180, 180 - (angle % 180)) < 5)
+                    {
+                        transform.localScale = new Vector3(1/groundTransform.localScale.x * Mathf.Sign(groundTransform.localScale.x)  * Mathf.Sign(transform.localScale.x),1/groundTransform.localScale.y,1/groundTransform.localScale.z);
+                    }
+                    else
+                    {
+                        transform.localScale = new Vector3(1/groundTransform.localScale.y,1/groundTransform.localScale.x * Mathf.Sign(groundTransform.localScale.x)  * Mathf.Sign(transform.localScale.x),1/groundTransform.localScale.z);
+                    }
+                    
+                }
+                else
+                {
+                    if (Mathf.Min(angle % 180, 180 - (angle % 180)) < 5)
+                    {
+                        transform.localScale = new Vector3(1/groundParenting.originalScale.x * Mathf.Sign(groundParenting.originalScale.x)  * Mathf.Sign(transform.localScale.x),1/groundParenting.originalScale.y,1/groundParenting.originalScale.z);
+                    }
+                    else
+                    {
+                        transform.localScale = new Vector3(1/groundParenting.originalScale.y,1/groundParenting.originalScale.x * Mathf.Sign(groundParenting.originalScale.x)  * Mathf.Sign(transform.localScale.x),1/groundParenting.originalScale.z);
+                    }
+                }
                 if (currentParent != groundTransform)
                 {
                     body.linearVelocity = Vector2.zero;
@@ -41,7 +65,7 @@ public class Parenting : MonoBehaviour
 
     Transform ground()
     {
-        RaycastHit2D[] downHit = Physics2D.RaycastAll(transform.position, Vector2.down, Mathf.Max(boxCollider2D.bounds.extents.y,boxCollider2D.bounds.extents.x)+0.2f, LayerMask.GetMask("Ground","Player"));
+        RaycastHit2D[] downHit = Physics2D.RaycastAll(transform.position, Vector2.down, Mathf.Max(boxCollider2D.bounds.extents.y,boxCollider2D.bounds.extents.x)+0.2f, LayerMask.GetMask("Ground","Player", "Free Object"));
         if (downHit.Length > 1)
         {
             return downHit[1].collider.transform;
