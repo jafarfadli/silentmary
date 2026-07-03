@@ -2,48 +2,70 @@ using UnityEngine;
 
 public class PawMovement: MonoBehaviour
 {
+    public static PawMovement instance;
     public Transform[] pawHelpers;
     public Transform pawTransform;
     bool isClosing = false;
     bool isOpening = false;
-    bool isTransitioning = false;
     Vector3 openPosition;
+    Vector3 openPositionStart;
     Vector3 openScale;
+    Vector3 openScaleStart;
     Vector3 closePosition;
+    Vector3 closePositionStart;
     Vector3 closeScale;
+    Vector3 closeScaleStart;
+    float transitioningDuration = 1f;
+    float transitioningTimer = Mathf.Infinity;
 
     void Awake()
     {
-        pawTransform = transform;
-        openPosition = Camera.main.transform.position + new Vector3(0, 25, 0);
-        openScale = new Vector3(10, 10, 1);
-        closePosition = Camera.main.transform.position + new Vector3(0, -25, 0);
-        closeScale = new Vector3(10, 10, 1);
+        instance = this;
     }
 
     void Update()
     {
         if (isOpening)
         {
-            pawTransform.position = Vector3.Lerp(pawTransform.position, openPosition, 5 * Time.deltaTime);
-            pawTransform.localScale = Vector3.Lerp(pawTransform.localScale, openScale, 5 * Time.deltaTime);  
+            transitioningTimer += Time.deltaTime;
+            pawTransform.position = Vector3.Lerp(openPositionStart, openPosition, Mathf.Pow(transitioningTimer/transitioningDuration,10));
+            pawTransform.localScale = Vector3.Lerp(openScaleStart, openScale, Mathf.Pow(transitioningTimer/transitioningDuration,4));  
             AdjustHelpers();  
 
             if (Vector3.Distance(pawTransform.position, openPosition) < 0.1f && Vector3.Distance(pawTransform.localScale, openScale) < 0.1f)
             {
+                pawTransform.gameObject.SetActive(false);
                 isOpening = false;
+                GameProgress.instance.isTransitioning = false;
+                GameProgress.instance.isTransitioningOpen = false;
             }        
         }
         if (isClosing)
         {
-            closePosition = PlayerMovement.instance.transform.position - 2.5f *pawTransform.localScale.y * Vector3.up;
-            pawTransform.position = Vector3.Lerp(pawTransform.position, closePosition, 5 * Time.deltaTime);
-            pawTransform.localScale = Vector3.Lerp(pawTransform.localScale, closeScale, 5 * Time.deltaTime);
+            transitioningTimer += Time.deltaTime;
+            closePosition = PlayerMovement.instance.transform.position;
+            pawTransform.position = Vector3.Lerp(closePositionStart, closePosition,1- Mathf.Pow(1-transitioningTimer/transitioningDuration,10));
+            pawTransform.localScale = Vector3.Lerp(closeScaleStart, closeScale,1- Mathf.Pow(1-transitioningTimer/transitioningDuration,4));
             AdjustHelpers();
             
             if (Vector3.Distance(pawTransform.position, closePosition) < 0.1f && Vector3.Distance(pawTransform.localScale, closeScale) < 0.1f)
             {
-                isClosing = false;
+                // pawTransform.gameObject.SetActive(false);
+                // isClosing = false;
+                if (GameProgress.instance.win)
+                {
+                    if (GameProgress.instance.currentLevel == 6)
+                    {
+                        UIManager.instance.goToScene("Cutscene Epilogue");
+                    }
+                    else
+                    {
+                        GameProgress.instance.NextLevel();   
+                    }
+                } else
+                {
+                    GameProgress.instance.RestartFromCheckpoint();
+                }
             }
         }
     }
@@ -55,32 +77,36 @@ public class PawMovement: MonoBehaviour
         float scaleHelperYt = (Camera.main.transform.position.y + 10)-(pawTransform.position.y + pawTransform.localScale.y*5);
         float scaleHelperYb = (pawTransform.position.y - pawTransform.localScale.y*5)-(Camera.main.transform.position.y - 10);
 
-        pawHelpers[0].localScale = new Vector3(scaleHelperXr, 20, 1);
-        pawHelpers[1].localScale = new Vector3(scaleHelperXl, 20, 1);
-        pawHelpers[2].localScale = new Vector3(30, scaleHelperYt, 1);
-        pawHelpers[3].localScale = new Vector3(30, scaleHelperYb, 1);
+        pawHelpers[0].localScale = new Vector3(scaleHelperXr, 20, 1); // kanan
+        pawHelpers[1].localScale = new Vector3(scaleHelperXl, 20, 1); // kiri
+        pawHelpers[2].localScale = new Vector3(30, scaleHelperYt, 1); // atas
+        pawHelpers[3].localScale = new Vector3(30, scaleHelperYb, 1); // bawah
 
-        pawHelpers[0].transform.position = Camera.main.transform.position + new Vector3(15 - scaleHelperXr/2, 0, 0);
-        pawHelpers[1].transform.position = Camera.main.transform.position + new Vector3(-15 + scaleHelperXl/2, 0, 0);
-        pawHelpers[2].transform.position = Camera.main.transform.position + new Vector3(0, 10 - scaleHelperYt/2, 0);
-        pawHelpers[3].transform.position = Camera.main.transform.position + new Vector3(0, -10 + scaleHelperYb/2, 0);
+        pawHelpers[0].transform.position = Camera.main.transform.position + new Vector3(15 - scaleHelperXr/2, 0, 10);
+        pawHelpers[1].transform.position = Camera.main.transform.position + new Vector3(-15 + scaleHelperXl/2, 0, 10);
+        pawHelpers[2].transform.position = Camera.main.transform.position + new Vector3(0, 10 - scaleHelperYt/2, 10);
+        pawHelpers[3].transform.position = Camera.main.transform.position + new Vector3(0, -10 + scaleHelperYb/2, 10);
     }
 
-    void OpenPaw()
+    public void OpenPaw()
     {
-        pawTransform.position = Camera.main.transform.position;
-        pawTransform.localScale = new Vector3(0, 0, 1);
-        openPosition = Camera.main.transform.position + new Vector3(0, 25, 0); 
-        openScale = new Vector3(10, 10, 1);       
+        openPositionStart = PlayerMovement.instance.transform.position;
+        openScaleStart = new Vector3(0, 0, 1);
+        openPosition = Camera.main.transform.position + new Vector3(0, 15, 10); 
+        openScale = new Vector3(10, 10, 1);   
+        transitioningTimer = 0;    
         isOpening = true;
+        pawTransform.gameObject.SetActive(true);
     }
 
-    void ClosePaw()
+    public void ClosePaw()
     {
-        pawTransform.position = Camera.main.transform.position + new Vector3(0, -25, 0); 
-        pawTransform.localScale = new Vector3(10, 10, 1);
+        closePositionStart = Camera.main.transform.position + new Vector3(0, 15, 10);
+        closeScaleStart = new Vector3(10, 10, 1);
         closePosition = PlayerMovement.instance.transform.position;
-        closeScale = new Vector3(0, 0, 1);       
+        closeScale = new Vector3(0, 0, 1);
+        transitioningTimer = 0;       
         isClosing = true;
+        pawTransform.gameObject.SetActive(true);
     }
 }

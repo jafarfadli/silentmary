@@ -19,7 +19,7 @@ public class FrameManager : MonoBehaviour
         player = PlayerMovement.instance.gameObject;
     }
 
-    public bool checkObstructionIn(Transform objectToSwitch, float offsetX) // gakena = obstructed
+    public bool checkObstructionIn(Transform objectToSwitch, float offsetX)
     {
         bool okay = obstructionCheck.checkObsIn(new Vector3(-objectToSwitch.position.x,transform.position.y + 10, 0), Vector2.down, new Vector3 (offsetX,0,0));
         obstructedText.color = obstructedTextColor;
@@ -29,7 +29,7 @@ public class FrameManager : MonoBehaviour
         return !okay;
     }
 
-    public bool checkObstructionOut(Transform objectToSwitch, float offsetX) // kena = obstructed
+    public bool checkObstructionOut(Transform objectToSwitch, float offsetX)
     {
         bool okay = obstructionCheck.checkObsOut(new Vector3(objectToSwitch.position.x, objectToSwitch.position.y, 0), Vector2.up, new Vector3(offsetX,0,0));
         obstructedText.color = obstructedTextColor;
@@ -47,6 +47,11 @@ public class FrameManager : MonoBehaviour
         obstructedText.gameObject.SetActive(inCooldown);
 
         return inCooldown;
+    }
+
+    public void setIndicator(Transform objectToSwitch, bool isYes)
+    {
+        obstructionCheck.setIndicatorPosition(new Vector3(-objectToSwitch.position.x, transform.position.y + 10, 0), isYes);
     }
 
     void Update()

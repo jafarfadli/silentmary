@@ -4,12 +4,13 @@ using TMPro;
 public class CameraMovement : MonoBehaviour
 {
     public static CameraMovement instance;
-    public TextMeshPro contextText;
     public float speed = 3f;
     public Vector3 camPositionLeft;
     public Vector3 camPositionRight;
     public bool isMoving = false;
     public bool viewMode = false;
+    public GameObject indicatorLeft;
+    public GameObject indicatorRight;
     void Awake()
     {
         instance = this;
@@ -21,11 +22,13 @@ public class CameraMovement : MonoBehaviour
     {
         if(transform.position.y == 0)
         {
-            contextText.text = "LEFT";
+            indicatorLeft.SetActive(true);
+            indicatorRight.SetActive(false);
         }
         else
         {
-            contextText.text = "RIGHT";
+            indicatorLeft.SetActive(false);
+            indicatorRight.SetActive(true);
         }
 
         if (isMoving){

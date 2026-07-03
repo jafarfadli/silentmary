@@ -20,6 +20,11 @@ public class WildMovement: MonoBehaviour
     }
     void Update()
     {
+        if (GameProgress.instance.isPaused)
+        {
+            return;
+        }
+
         childedTimer += Time.deltaTime;
         ungroundedTimer += Time.deltaTime;
         if (topped())
@@ -34,12 +39,17 @@ public class WildMovement: MonoBehaviour
             boxCollider2D.size = new Vector2(1.8f,1.8f);
         }
 
-        if ( gameObject.activeSelf == false || GameProgress.instance.viewMode || GameProgress.instance.activeSubject != gameObject)
+        if ( gameObject.activeSelf == false || GameProgress.instance.viewMode || GameProgress.instance.isTransitioning || GameProgress.instance.activeSubject != gameObject)
         {
             animator.SetBool("walk", false);
             animator.SetBool("grounded", grounded());
             animator.SetBool("controlled", false);
             return;
+        }
+
+        if (!groundedBool && grounded()  && body.linearVelocity.y > 5f)
+        {
+            PlaySFX.instance.playFall();
         }
         if (grounded())
         {
@@ -86,6 +96,15 @@ public class WildMovement: MonoBehaviour
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpPower);
         }
 
+        if ((leftWalk || rightWalk) && groundedBool && !PlaySFX.instance.checkWalk())
+        {
+            PlaySFX.instance.playWalk();
+        }
+        if ((!leftWalk && !rightWalk) || !groundedBool)
+        {
+            PlaySFX.instance.stopWalk();
+        }
+
         animator.SetBool("walk", rightWalk || leftWalk);
         animator.SetBool("grounded", grounded());
         animator.SetBool("controlled", true);
@@ -93,7 +112,7 @@ public class WildMovement: MonoBehaviour
 
     public bool grounded()
     {
-        RaycastHit2D[] downHits = Physics2D.BoxCastAll(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.1f, LayerMask.GetMask("Ground", "Free Object", "Player", "Platform", "Wild"));
+        RaycastHit2D[] downHits = Physics2D.BoxCastAll(boxCollider2D.bounds.center, boxCollider2D.bounds.size * 0.95f, 0, Vector2.down, 0.1f, LayerMask.GetMask("Ground", "Free Object", "Player", "Platform", "Wild"));
         return downHits.Length > 1;
     }
 

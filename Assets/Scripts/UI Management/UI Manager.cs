@@ -16,7 +16,6 @@ public class UIManager : MonoBehaviour
         {
             ui.SetActive(false);
         }
-        Time.timeScale = 1;
     }
 
     public void goToScene(string sceneName)

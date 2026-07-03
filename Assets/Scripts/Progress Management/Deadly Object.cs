@@ -8,7 +8,8 @@ public class DeadlyObject : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             other.gameObject.SetActive(false);
-            GameProgress.instance.RestartFromCheckpoint();
+            PlaySFX.instance.playDeath();
+            GameProgress.instance.Dead();
         }
         else if (other.gameObject.tag == "Free Object")
         {
@@ -17,6 +18,7 @@ public class DeadlyObject : MonoBehaviour
         else if (other.gameObject.tag == "Wild")
         {
             other.gameObject.SetActive(false);
+            PlaySFX.instance.playDeath();
         }
     }
 }

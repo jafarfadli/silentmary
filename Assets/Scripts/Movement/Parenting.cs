@@ -21,6 +21,17 @@ public class Parenting : MonoBehaviour
 
     void Update()
     {
+        if (transform.parent != null){
+            Parenting parentParenting = transform.parent.GetComponent<Parenting>();
+            if (parentParenting != null)
+            {       
+                spriteRenderer.sortingOrder = parentParenting.spriteRenderer.sortingOrder - 1;
+            }
+        } else
+        {
+            spriteRenderer.sortingOrder = originalOrder;
+        }
+        
         if (boxCollider2D.enabled && !boxCollider2D.isTrigger)
         {
             Transform groundTransform = ground();
@@ -35,7 +46,7 @@ public class Parenting : MonoBehaviour
                     if (Mathf.Min(angle % 180, 180 - (angle % 180)) < 5)
                     {
                         transform.localScale = new Vector3(
-                            originalScale.x/groundTransform.localScale.x * Mathf.Sign(groundTransform.localScale.x)  * Mathf.Sign(transform.localScale.x),
+                            originalScale.x/groundTransform.localScale.x * Mathf.Sign(transform.localScale.x),
                             originalScale.y/groundTransform.localScale.y,
                             originalScale.z/groundTransform.localScale.z);
                     }
@@ -43,7 +54,7 @@ public class Parenting : MonoBehaviour
                     {
                         transform.localScale = new Vector3(
                             originalScale.x/groundTransform.localScale.y,
-                            originalScale.y/groundTransform.localScale.x * Mathf.Sign(groundTransform.localScale.x)  * Mathf.Sign(transform.localScale.x),
+                            originalScale.y/groundTransform.localScale.x * Mathf.Sign(transform.localScale.x),
                             originalScale.z/groundTransform.localScale.z);
                     }
                 }
@@ -52,7 +63,7 @@ public class Parenting : MonoBehaviour
                     if (Mathf.Min(angle % 180, 180 - (angle % 180)) < 5)
                     {
                         transform.localScale = new Vector3(
-                            originalScale.x/groundParenting.originalScale.x * Mathf.Sign(groundParenting.originalScale.x)  * Mathf.Sign(transform.localScale.x),
+                            originalScale.x/groundParenting.originalScale.x * Mathf.Sign(transform.localScale.x),
                             originalScale.y/groundParenting.originalScale.y,
                             originalScale.z/groundParenting.originalScale.z);
                     }
@@ -60,21 +71,19 @@ public class Parenting : MonoBehaviour
                     {
                         transform.localScale = new Vector3(
                             originalScale.x/groundParenting.originalScale.y,
-                            originalScale.y/groundParenting.originalScale.x * Mathf.Sign(groundParenting.originalScale.x)  * Mathf.Sign(transform.localScale.x),
+                            originalScale.y/groundParenting.originalScale.x * Mathf.Sign(transform.localScale.x),
                             originalScale.z/groundParenting.originalScale.z);
                     }
-                    spriteRenderer.sortingOrder = groundParenting.spriteRenderer.sortingOrder - 1;
                 }
                 if (currentParent != groundTransform)
                 {
                     body.linearVelocity = Vector2.zero;
                 }
             }
-            else
+            else 
             {
                 transform.SetParent(originalParent, true);
                 transform.localScale = new Vector3(originalScale.x * Mathf.Sign(transform.localScale.x), originalScale.y, originalScale.z);
-                spriteRenderer.sortingOrder = originalOrder;
             }
             currentParent = groundTransform;
         }
@@ -82,7 +91,7 @@ public class Parenting : MonoBehaviour
 
     Transform ground()
     {
-        RaycastHit2D[] downHit = Physics2D.RaycastAll(transform.position, Vector2.down, Mathf.Max(boxCollider2D.bounds.extents.y,boxCollider2D.bounds.extents.x)+0.2f, LayerMask.GetMask("Ground","Player", "Free Object","Platform", "Wild"));
+        RaycastHit2D[] downHit = Physics2D.RaycastAll(transform.position-boxCollider2D.bounds.extents.y * Vector3.up * 0.9f, Vector2.down, 0.5f, LayerMask.GetMask("Ground","Player", "Free Object","Platform", "Wild"));
         if (downHit.Length > 1)
         {
             return downHit[1].collider.transform;
@@ -106,5 +115,21 @@ public class Parenting : MonoBehaviour
     {
         gameObject.transform.SetParent(originalParent, true);
         gameObject.transform.localScale = new Vector3(originalScale.x * Mathf.Sign(transform.localScale.x), originalScale.y, originalScale.z);   
+    }
+
+    public int getSignX()
+    {
+        if (transform.parent == null)
+        {
+            return (int)Mathf.Sign(transform.localScale.x);
+        }
+        else if (transform.parent.gameObject.GetComponent<Parenting>() == null)
+        {
+            return (int)Mathf.Sign(transform.localScale.x * transform.parent.localScale.x);
+        }
+        else
+        {
+            return (int)Mathf.Sign(transform.localScale.x * transform.parent.gameObject.GetComponent<Parenting>().getSignX());
+        }
     }
 }

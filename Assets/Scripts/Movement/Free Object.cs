@@ -2,10 +2,31 @@ using UnityEngine;
 
 public class FreeObject : MonoBehaviour {
     BoxCollider2D boxCollider2D;
+    bool groundedBool = false;
+    float ungroundedTimer = Mathf.Infinity;
+    Rigidbody2D body;
 
     void Awake()
     {
         boxCollider2D = GetComponent<BoxCollider2D>();
+        body = GetComponent<Rigidbody2D>();
+    }
+    void Update()
+    {
+        ungroundedTimer += Time.deltaTime;
+        if (!groundedBool && grounded()  && body.linearVelocity.y > 5f)
+        {
+            PlaySFX.instance.playFall();
+        }
+        if (grounded())
+        {
+            groundedBool = true;
+            ungroundedTimer = 0;
+        }
+        else if (ungroundedTimer > 0.1f)
+        {
+            groundedBool = false;   
+        }
     }
     public bool grounded()
     {

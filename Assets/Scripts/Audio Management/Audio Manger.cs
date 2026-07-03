@@ -5,8 +5,8 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
     public AudioMixer masterMixer;
-    private const string MusicKey = "MusicVolume";
-    private const string SFXKey = "SFXVolume";
+    private const string MusicKey = "Music";
+    private const string SFXKey = "SFX";
 
     void Awake()
     {

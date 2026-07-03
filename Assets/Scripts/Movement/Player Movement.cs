@@ -31,8 +31,22 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (GameProgress.instance.isPaused)
+        {
+            return;
+        }
+
         childedTimer += Time.deltaTime;
         ungroundedTimer += Time.deltaTime;
+
+        if (GameProgress.instance.isTransitioning || GameProgress.instance.viewMode || GameProgress.instance.win )
+        {
+            animator.SetBool("walk", false);
+            animator.SetBool("grounded", true);
+            animator.SetBool("telekinesis", false);
+            return;
+        }
+
         if (topped())
         {
             boxCollider2D.offset = new Vector2(0,-0.4f);
@@ -52,6 +66,10 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("telekinesis", true);
             return;
         }
+        if (!groundedBool && grounded() && body.linearVelocity.y > 5f)
+        {
+            PlaySFX.instance.playFall();
+        }
         if (grounded())
         {
             groundedBool = true;
@@ -64,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (!isSwitchingFrame)
         {
-            float parentSignX = transform.parent == null? 1: Mathf.Sign(transform.parent.localScale.x);
+            float parentSignX = transform.parent == null? 1: transform.parent.GetComponent<Parenting>() == null? 1: transform.parent.GetComponent<Parenting>().getSignX();
             if (Input.GetKey(KeyCode.A))
             {
                 RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, boxCollider2D.bounds.extents.x+0.1f, LayerMask.GetMask("Free Object", "Wild"));
@@ -128,9 +146,9 @@ public class PlayerMovement : MonoBehaviour
             if (switchingFrameCarry)
             {
                 transform.parent = carry.transform;
-                carry.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(body.linearVelocity.x, 50);
+                carry.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 50);
             } else{
-                body.linearVelocity = new Vector2(body.linearVelocity.x, 50);
+                body.linearVelocity = new Vector2(0, 50);
             }
 
             if (transform.position.y > currentFrame.transform.position.y + 10)
@@ -163,6 +181,15 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        if ((leftWalk || rightWalk) && groundedBool && !PlaySFX.instance.checkWalk())
+        {
+            PlaySFX.instance.playWalk();
+        }
+        if ((!leftWalk && !rightWalk) || !groundedBool)
+        {
+            PlaySFX.instance.stopWalk();
+        }
+
         animator.SetBool("walk", leftWalk || rightWalk);
         animator.SetBool("grounded", grounded());
         animator.SetBool("telekinesis", false);
@@ -170,7 +197,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool grounded()
     {
-        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0, Vector2.down, 0.1f, LayerMask.GetMask("Ground", "Free Object", "Platform", "Wild"));
+        RaycastHit2D downHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size * 0.95f, 0, Vector2.down, 0.1f, LayerMask.GetMask("Ground", "Free Object", "Platform", "Wild"));
         return downHit.collider != null;
     }
 
@@ -205,5 +232,26 @@ public class PlayerMovement : MonoBehaviour
         FrameManager dummyFrame = currentFrame;
         currentFrame = otherFrame;
         otherFrame = dummyFrame;
+    }
+
+    public bool checkObstructionForSwitching()
+    {
+        if (transform.parent != null && (LayerMask.LayerToName(transform.parent.gameObject.layer) == "Free Object" || LayerMask.LayerToName(transform.parent.gameObject.layer) == "Wild"))
+        {
+            BoxCollider2D parentCollider = transform.parent.gameObject.GetComponent<BoxCollider2D>();
+            if (!otherFrame.checkObstructionIn(transform.parent, parentCollider.bounds.extents.x) 
+            && !currentFrame.checkObstructionOut(transform.parent, parentCollider.bounds.extents.x)
+            && !currentFrame.checkObstructionOut(transform, boxCollider2D.bounds.extents.x) 
+            && !currentFrame.checkObstructionCam())
+            {
+                return true;                  
+            }
+        } else if (!otherFrame.checkObstructionIn(transform, boxCollider2D.bounds.extents.x) 
+        && !currentFrame.checkObstructionOut(transform, boxCollider2D.bounds.extents.x) 
+        && !currentFrame.checkObstructionCam())
+        {   
+            return true;
+        }
+        return false;
     }
 }

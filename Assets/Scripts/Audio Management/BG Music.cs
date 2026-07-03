@@ -4,27 +4,27 @@ using UnityEngine.SceneManagement;
 public class BGMusic : MonoBehaviour
 {
     public string tagToCheck = "Game";
-    public static BGMusic Instance;
+    public static BGMusic instance;
     
     AudioSource audioSource;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        if (Instance == null)
+        if (instance == null)
         {
-            Instance = this;
+            instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            if (Instance.tagToCheck == tagToCheck)
+            if (instance.tagToCheck == tagToCheck)
             {
                 Destroy(gameObject);
             }
             else
             {
-                Instance.DestroyMusic();   
+                instance.DestroyMusic();   
             }
         }
     }
