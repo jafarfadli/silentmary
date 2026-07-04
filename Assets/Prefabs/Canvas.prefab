@@ -1708,6 +1708,7 @@ GameObject:
   - component: {fileID: 6220974861690838038}
   - component: {fileID: 3088835344932428340}
   - component: {fileID: 6398156137580608488}
+  - component: {fileID: 595541147433135176}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1894,6 +1895,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SFXSlider
   sfxSlider: {fileID: 1894027544493148084}
+--- !u!114 &595541147433135176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3186320587540555400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cce7fa403bc54925994e43d105abf6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressManager
 --- !u!1 &3239593036607585869
 GameObject:
   m_ObjectHideFlags: 0

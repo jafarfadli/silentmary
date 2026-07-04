@@ -430,6 +430,7 @@ public class GameProgress : MonoBehaviour
         isTransitioning = true;
         isTransitioningClose = true;
         PawMovement.instance.ClosePaw();  
+        ProgressManager.instance.SaveProgress(currentLevel);
     }
 
     public void NextLevel()

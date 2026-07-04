@@ -13,7 +13,7 @@ public class ProgressManager : MonoBehaviour
     public void SaveProgress(int currentLevel)
     {
         int currentProgress = GetProgress();
-        if (currentLevel > currentProgress)
+        if (currentLevel == currentProgress)
         {
             PlayerPrefs.SetInt(progressKey, currentProgress + 1);
             PlayerPrefs.Save();   
@@ -24,7 +24,4 @@ public class ProgressManager : MonoBehaviour
     {
         return PlayerPrefs.GetInt(progressKey, 0);
     }
-
-
-
 }

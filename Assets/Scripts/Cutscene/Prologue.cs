@@ -160,6 +160,7 @@ public class Prologue: MonoBehaviour
             else
             {
                 PlayerPrefs.SetInt("CheckpointIsCheckpoint", 0);
+                ProgressManager.instance.SaveProgress(0);
                 UIManager.instance.goToScene("L1");
             }
         }

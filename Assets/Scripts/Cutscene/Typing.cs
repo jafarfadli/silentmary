@@ -13,7 +13,6 @@ public class Typing : MonoBehaviour
     {
         fullText = textToType;
         
-        // Stop any running typing routine to avoid overlaps
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
@@ -27,7 +26,6 @@ public class Typing : MonoBehaviour
         textComponent.text = fullText;
         textComponent.maxVisibleCharacters = 0;
 
-        // Force an immediate mesh update to parse rich text and calculate total characters accurately
         textComponent.ForceMeshUpdate(); 
         int totalVisibleCharacters = textComponent.textInfo.characterCount;
 

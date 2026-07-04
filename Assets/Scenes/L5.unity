@@ -6982,10 +6982,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2511357282280951905, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2622342763777765128, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 22792a9d2509c4cf49e4e6639c3b0b10, type: 3}
+    - target: {fileID: 2657558960962179345, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3140193248293064767, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7038,6 +7046,10 @@ PrefabInstance:
       propertyPath: 'switchingUI.Array.data[3]'
       value: 
       objectReference: {fileID: 1156520081}
+    - target: {fileID: 4557601875901612975, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4671585116739263846, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7050,6 +7062,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -7907303095814288263, guid: bf1d6aac2ce844441a7d71a0172fb39b, type: 3}
+    - target: {fileID: 8576630055645517539, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8804839168194997807, guid: 595b182e2e6d04fd6ab9867314bc264c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
